@@ -75,14 +75,19 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Split the input and collect
     let v: Vec<&str> = buffer.trim().split('\n').collect();
+
+    let mut final_score: i32 = 0;
+
     for set in v {
         let move_pair: Vec<&str> = set.split(' ').collect();
         if let [first, second] = move_pair[..] {
             let (their_move, our_move) = decode(first, second);
             let match_result: i32 = play_match(our_move, their_move);
-            println!("Result: {}", match_result);
+            final_score += match_result;
         }
     }
+
+    println!("Final score: {}", final_score);
 
     Ok(())
 }
