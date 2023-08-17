@@ -16,15 +16,6 @@ pub enum MatchResult {
     Draw(i32),
 }
 
-pub struct RpcMatch {
-    our_move: ValidHand,
-    their_move: ValidHand,
-}
-
-pub trait CompareMoves {
-    fn rpc_compare(&self) -> i32;
-}
-
 pub trait Beats {
     fn beats(&self) -> Self;
 }
@@ -39,30 +30,41 @@ impl Beats for ValidHand {
     }
 }
 
-fn play_match(our_move: ValidHand, thier_move: ValidHand) -> MatchResult {
+fn play_match(our_move: ValidHand, thier_move: ValidHand) -> i32 {
     let our_move_beats = our_move.beats();
+    let move_score = match our_move {
+        ValidHand::Rock => 1,
+        ValidHand::Paper => 2,
+        ValidHand::Scissors => 3,
+    };
 
-    match (our_move_beats, our_move) {
+    let result = match (our_move_beats, our_move) {
         _ if our_move_beats == thier_move => MatchResult::Win(6),
         _ if our_move == thier_move => MatchResult::Draw(3),
         _ => MatchResult::Loss(0),
-    }
-}
+    };
 
-impl CompareMoves for RpcMatch {
-    fn rpc_compare(&self) -> i32 {
-        let move_score = match self.our_move {
-            ValidHand::Rock => 1,
-            ValidHand::Paper => 2,
-            ValidHand::Scissors => 3,
-        };
-        let result = play_match(self.our_move, self.their_move);
-        match result {
+    match result {
             MatchResult::Win(i) => i + move_score,
             MatchResult::Draw(i) => i + move_score,
             MatchResult::Loss(i) => i + move_score,
-        }
     }
+}
+
+fn decode(opponent: &str, player: &str) -> (ValidHand, ValidHand) {
+    let opponents_move = match opponent {
+        "A" => ValidHand::Rock,
+        "B" => ValidHand::Paper,
+        "C" => ValidHand::Scissors,
+        _ => panic!("Invalid"),
+    };
+    let player_move = match player {
+        "X" => ValidHand::Rock,
+        "Y" => ValidHand::Paper,
+        "Z" => ValidHand::Scissors,
+        _ => panic!("Invalid"),
+    };
+    (opponents_move, player_move)
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -73,31 +75,14 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Split the input and collect
     let v: Vec<&str> = buffer.trim().split('\n').collect();
-    let v2: Vec<String> = v.iter()
-        .map(|s| s.replace(" ", ""))
-        .collect();
-    
-    for n in v2 {
-        let iter: Vec<_> = n.chars().collect();
-        let mut new_iter = iter.chunks_exact(2);
-        while let Some(slice) = new_iter.next() {
-            if let [first, second] = slice {
-                println!("{} / {}", first, second);
-            }
+    for set in v {
+        let move_pair: Vec<&str> = set.split(' ').collect();
+        if let [first, second] = move_pair[..] {
+            let (their_move, our_move) = decode(first, second);
+            let match_result: i32 = play_match(our_move, their_move);
+            println!("Result: {}", match_result);
         }
     }
 
-
-    // for pair in v2 {
-    //     let mut iter = pair.chunks_exact(2);
-    // }
-
-    // let mut match_collection: Vec<RpcMatch> = Vec::new();
-    // while let Some(chunk) = iter.next() {
-    //     if let [first, second] = chunk {
-    //         println!("Result: {} / {}", first, second);
-    //     }
-    // }
-        
     Ok(())
 }
