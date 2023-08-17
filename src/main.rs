@@ -77,8 +77,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         .map(|s| s.replace(" ", ""))
         .collect();
     
-    while let Some(slice) = v.iter().next() {
-        dbg!(slice);
+    for n in v2 {
+        let iter: Vec<_> = n.chars().collect();
+        let mut new_iter = iter.chunks_exact(2);
+        while let Some(slice) = new_iter.next() {
+            if let [first, second] = slice {
+                println!("{} / {}", first, second);
+            }
+        }
     }
 
 
