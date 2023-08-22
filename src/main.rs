@@ -1,6 +1,6 @@
+use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
-use std::error::Error;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum ValidHand {
@@ -28,7 +28,7 @@ impl Beats for ValidHand {
             Self::Rock => Self::Scissors,
             Self::Paper => Self::Rock,
             Self::Scissors => Self::Paper,
-        } 
+        }
     }
 
     // Returns the ValidHand the provided hand is beat by
@@ -37,7 +37,7 @@ impl Beats for ValidHand {
             Self::Rock => Self::Paper,
             Self::Paper => Self::Scissors,
             Self::Scissors => Self::Rock,
-        } 
+        }
     }
 }
 
@@ -58,9 +58,9 @@ fn play_match(our_move: ValidHand, thier_move: ValidHand) -> i32 {
     };
 
     match result {
-            MatchResult::Win(i) => i + move_score,
-            MatchResult::Draw(i) => i + move_score,
-            MatchResult::Loss(i) => i + move_score,
+        MatchResult::Win(i) => i + move_score,
+        MatchResult::Draw(i) => i + move_score,
+        MatchResult::Loss(i) => i + move_score,
     }
 }
 
@@ -91,7 +91,7 @@ fn decode_part2(opponent_move: &str, match_result: &str) -> (ValidHand, ValidHan
     };
     let result = match match_result {
         "X" => opponents_hand.beats(),
-        "Y" => opponents_hand.clone(),
+        "Y" => opponents_hand,
         "Z" => opponents_hand.is_beat_by(),
         _ => panic!("Invalid"),
     };
